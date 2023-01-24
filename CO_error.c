@@ -23,16 +23,17 @@
  * limitations under the License.
  */
 
+#include "../CANOpenGit/CO_error.h"
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <syslog.h>
 #include <time.h>
-#include <linux/can/error.h>
+#include <nuttx/can.h>
 
-#include "CO_error.h"
-#include "301/CO_driver.h"
+#include "../CANOpenGit/CANopenNode/301/CO_driver.h"
 
 
 /**
@@ -48,14 +49,15 @@ static CO_CANinterfaceState_t CO_CANerrorSetListenOnly(
     CANerrorhandler->listenOnly = true;
 
     if (resetIf) {
-        int ret;
+        int ret = 0;
         char command[100];
         snprintf(command, sizeof(command), "ip link set %s down && "
                                            "ip link set %s up "
                                            "&",
                                            CANerrorhandler->ifName,
                                            CANerrorhandler->ifName);
-        ret = system(command);
+#warning Missing logic. System() is not implemented in Nuttx
+//        ret = system(command);
         if(ret < 0){
             log_printf(LOG_DEBUG, DBG_ERRNO, "system()");
         }

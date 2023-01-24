@@ -31,13 +31,13 @@
 #include <stdint.h>
 #include <errno.h>
 #include <string.h>
-#include <linux/can.h>
+#include <nuttx/can.h>
 #include <net/if.h>
 
 #if __has_include("CO_error_custom.h")
     #include "CO_error_custom.h"
 #else
-    #include "CO_error_msgs.h"
+    #include "../CANOpenGit/CO_error_msgs.h"
 #endif
 
 #ifdef __cplusplus

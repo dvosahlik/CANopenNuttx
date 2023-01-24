@@ -24,21 +24,32 @@
  * limitations under the License.
  */
 
+#include "../CANOpenGit/CANopenNode/301/CO_driver.h"
+
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
 #include <syslog.h>
-#include <linux/can/raw.h>
-#include <linux/can/error.h>
-#include <linux/net_tstamp.h>
+#include <nuttx/can.h>
+//#include <nuttx/can/error.h>
+//#include <nuttx/net_tstamp.h>
 #include <sys/socket.h>
-#include <asm/socket.h>
+#include <nuttx/pthread.h>
+//#include <asm/socket.h>
 #include <sys/eventfd.h>
-#include <time.h>
+#include <sys/time.h>
 
-#include "301/CO_driver.h"
-#include "CO_error.h"
+#include "../CANOpenGit/CO_error.h"
+
+
+#ifndef SO_TIMESTAMPING
+#define SO_TIMESTAMPING 37
+#endif
+
+#define SOF_TIMESTAMPING_SOFTWARE (1<<4)
+#define SOF_TIMESTAMPING_RX_SOFTWARE (1<<3)
+#define SOF_TIMESTAMPING_RAW_HARDWARE (1<<6)
 
 #ifndef CO_SINGLE_THREAD
 pthread_mutex_t CO_EMCY_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -110,8 +121,9 @@ static CO_ReturnError_t disableRx(CO_CANmodule_t *CANmodule)
     /* insert a filter that doesn't match any messages */
     retval = CO_ERROR_NO;
     for (i = 0; i < CANmodule->CANinterfaceCount; i ++) {
+        /* The option_value has to be something nonull in Nuttx */
         int ret = setsockopt(CANmodule->CANinterfaces[i].fd, SOL_CAN_RAW, CAN_RAW_FILTER,
-                         NULL, 0);
+                         1, 0);
         if(ret < 0){
             log_printf(LOG_ERR, CAN_FILTER_FAILED,
                        CANmodule->CANinterfaces[i].ifName);
@@ -227,7 +239,7 @@ CO_ReturnError_t CO_CANmodule_init(
 #if CO_DRIVER_MULTI_INTERFACE > 0
     for (i = 0; i < CO_CAN_MSG_SFF_MAX_COB_ID; i++) {
         CANmodule->rxIdentToIndex[i] = CO_INVALID_COB_ID;
-        CANmodule->txIdentToIndex[i] = CO_INVALID_COB_ID;
+        CANmodule->txIdentToIndex[i] = CO_INVALID_COB_ID;TIMESTAMPING
     }
 #endif
 
@@ -313,7 +325,7 @@ CO_ReturnError_t CO_CANmodule_addInterface(CO_CANmodule_t *CANmodule,
 
     /* enable socket rx queue overflow detection */
     tmp = 1;
-    ret = setsockopt(interface->fd, SOL_SOCKET, SO_RXQ_OVFL, &tmp, sizeof(tmp));
+//    ret = setsockopt(interface->fd, SOL_SOCKET, SO_RXQ_OVFL, &tmp, sizeof(tmp));
     if(ret < 0){
         log_printf(LOG_DEBUG, DBG_ERRNO, "setsockopt(ovfl)");
         return CO_ERROR_SYSCALL;
@@ -323,7 +335,7 @@ CO_ReturnError_t CO_CANmodule_addInterface(CO_CANmodule_t *CANmodule,
      * on all devices)*/
     tmp = (SOF_TIMESTAMPING_SOFTWARE |
            SOF_TIMESTAMPING_RX_SOFTWARE);
-    ret = setsockopt(interface->fd, SOL_SOCKET, SO_TIMESTAMPING, &tmp, sizeof(tmp));
+    ret = setsockopt(interface->fd, SOL_SOCKET, SO_TIMESTAMP, &tmp, sizeof(tmp));
     if (ret < 0) {
         log_printf(LOG_DEBUG, DBG_ERRNO, "setsockopt(timestamping)");
         return CO_ERROR_SYSCALL;
@@ -332,15 +344,6 @@ CO_ReturnError_t CO_CANmodule_addInterface(CO_CANmodule_t *CANmodule,
     //todo - modify rx buffer size? first one needs root
     //ret = setsockopt(fd, SOL_SOCKET, SO_RCVBUFFORCE, (void *)&bytes, sLen);
     //ret = setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (void *)&bytes, sLen);
-
-    /* print socket rx buffer size in bytes (In my experience, the kernel reserves
-     * around 450 bytes for each CAN message) */
-    sLen = sizeof(bytes);
-    getsockopt(interface->fd, SOL_SOCKET, SO_RCVBUF, (void *)&bytes, &sLen);
-    if (sLen == sizeof(bytes)) {
-        log_printf(LOG_INFO, CAN_SOCKET_BUF_SIZE, interface->ifName,
-                   bytes / 446, bytes);
-    }
 
     /* bind socket */
     memset(&sockAddr, 0, sizeof(sockAddr));
@@ -855,7 +858,7 @@ static CO_ReturnError_t CO_CANread(
     for (cmsg = CMSG_FIRSTHDR(&msghdr);
          cmsg && (cmsg->cmsg_level == SOL_SOCKET);
          cmsg = CMSG_NXTHDR(&msghdr, cmsg)) {
-        if (cmsg->cmsg_type == SO_TIMESTAMPING) {
+        if (cmsg->cmsg_type == SO_TIMESTAMP) {
             /* this is system time, not monotonic time! */
             *timestamp = ((struct timespec*)CMSG_DATA(cmsg))[0];
         }

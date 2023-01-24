@@ -34,18 +34,16 @@
 #include <time.h>
 #include <sys/epoll.h>
 #include <net/if.h>
-#include <linux/reboot.h>
-#include <sys/reboot.h>
 
-#include "CANopen.h"
+#include "../CANOpenGit/CANopenNode/CANopen.h"
 #include "OD.h"
-#include "CO_error.h"
-#include "CO_epoll_interface.h"
-#include "CO_storageLinux.h"
+#include "../CANOpenGit/CO_epoll_interface.h"
+#include "../CANOpenGit/CO_error.h"
+#include "../CANOpenGit/CO_storageLinux.h"
 
 /* Include optional external application functions */
 #ifdef CO_USE_APPLICATION
-#include "CO_application.h"
+#include "../CANOpenGit/CO_application.h"
 #endif
 
 /* Add trace functionality for recording variables over time */
@@ -278,6 +276,7 @@ int main (int argc, char *argv[]) {
     CO_NMT_reset_cmd_t reset = CO_RESET_NOT;
     CO_ReturnError_t err;
     CO_CANptrSocketCan_t CANptr = {0};
+    CO_endProgram = 0;
     int opt;
     bool_t firstRun = true;
 
@@ -324,9 +323,6 @@ int main (int argc, char *argv[]) {
     #define localSocketPath NULL
 #endif
 
-    /* configure system log */
-    setlogmask(LOG_UPTO (LOG_DEBUG)); /* LOG_DEBUG - log all messages */
-    openlog(argv[0], LOG_PID | LOG_PERROR, LOG_USER); /* print also to standard error */
 
     /* Get program options */
     if(argc < 2 || strcmp(argv[1], "--help") == 0){
@@ -802,11 +798,7 @@ int main (int argc, char *argv[]) {
 
     /* Flush all buffers (and reboot) */
     if(rebootEnable && reset == CO_RESET_APP) {
-        sync();
-        if(reboot(LINUX_REBOOT_CMD_RESTART) != 0) {
-            log_printf(LOG_CRIT, DBG_ERRNO, "reboot()");
-            exit(EXIT_FAILURE);
-        }
+#warning Missing logic to reset
     }
 
     exit(programExit);

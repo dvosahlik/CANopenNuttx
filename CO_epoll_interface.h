@@ -29,11 +29,10 @@
 #ifndef CO_EPOLL_INTERFACE_H
 #define CO_EPOLL_INTERFACE_H
 
-#include "CANopen.h"
-
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 #include <sys/timerfd.h>
+#include "../CANOpenGit/CANopenNode/CANopen.h"
 
 #ifdef __cplusplus
 extern "C" {

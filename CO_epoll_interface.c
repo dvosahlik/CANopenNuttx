@@ -28,13 +28,14 @@
 /* following macro is necessary for accept4() function call (sockets) */
 #define _GNU_SOURCE
 
-#include "CO_epoll_interface.h"
+#include "../CANOpenGit/CO_epoll_interface.h"
 
 #include <stdlib.h>
 #include <unistd.h>
 #include <syslog.h>
 #include <time.h>
 #include <fcntl.h>
+#include <sys/eventfd.h>
 
 #if (CO_CONFIG_GTW) & CO_CONFIG_GTW_ASCII
 #include <stdio.h>

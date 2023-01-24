@@ -22,12 +22,12 @@
  * limitations under the License.
  */
 
-#include "CO_storageLinux.h"
-#include "301/crc16-ccitt.h"
+#include "../CANOpenGit/CO_storageLinux.h"
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../CANOpenGit/CANopenNode/301/crc16-ccitt.h"
 
 #if (CO_CONFIG_STORAGE) & CO_CONFIG_STORAGE_ENABLE
 
