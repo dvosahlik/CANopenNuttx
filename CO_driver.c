@@ -123,7 +123,7 @@ static CO_ReturnError_t disableRx(CO_CANmodule_t *CANmodule)
     for (i = 0; i < CANmodule->CANinterfaceCount; i ++) {
         /* The option_value has to be something nonull in Nuttx */
         int ret = setsockopt(CANmodule->CANinterfaces[i].fd, SOL_CAN_RAW, CAN_RAW_FILTER,
-                         1, 0);
+                         (void*)1, 0);
         if(ret < 0){
             log_printf(LOG_ERR, CAN_FILTER_FAILED,
                        CANmodule->CANinterfaces[i].ifName);
