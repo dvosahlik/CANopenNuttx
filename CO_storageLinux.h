@@ -26,6 +26,8 @@
 #ifndef CO_STORAGE_LINUX_H
 #define CO_STORAGE_LINUX_H
 
+#define CO_CONFIG_STORAGE 0x00
+
 #include "../CANOpenGit/CANopenNode/storage/CO_storage.h"
 
 #if ((CO_CONFIG_STORAGE) & CO_CONFIG_STORAGE_ENABLE) || defined CO_DOXYGEN

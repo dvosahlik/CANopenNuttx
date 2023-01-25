@@ -35,11 +35,12 @@
 #include <sys/epoll.h>
 #include <net/if.h>
 
-#include "../CANOpenGit/CANopenNode/CANopen.h"
+
+#include "../CANOpenGit/CO_storageLinux.h"
 #include "OD.h"
 #include "../CANOpenGit/CO_epoll_interface.h"
 #include "../CANOpenGit/CO_error.h"
-#include "../CANOpenGit/CO_storageLinux.h"
+#include "../CANOpenGit/CANopenNode/CANopen.h"
 
 /* Include optional external application functions */
 #ifdef CO_USE_APPLICATION
