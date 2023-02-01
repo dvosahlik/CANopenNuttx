@@ -286,7 +286,6 @@ CO_ReturnError_t CO_CANmodule_addInterface(CO_CANmodule_t *CANmodule,
     int32_t tmp;
     int32_t bytes;
     char *ifName;
-    socklen_t sLen;
     CO_CANinterface_t *interface;
     struct sockaddr_can sockAddr;
     struct epoll_event ev = {0};
