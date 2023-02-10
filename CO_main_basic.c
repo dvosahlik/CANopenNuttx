@@ -35,7 +35,6 @@
 #include <sys/epoll.h>
 #include <net/if.h>
 
-
 #include "../CANOpenGit/CO_storageLinux.h"
 #include "OD.h"
 #include "../CANOpenGit/CO_epoll_interface.h"

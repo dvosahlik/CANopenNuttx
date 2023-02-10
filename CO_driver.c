@@ -32,11 +32,8 @@
 #include <errno.h>
 #include <syslog.h>
 #include <nuttx/can.h>
-//#include <nuttx/can/error.h>
-//#include <nuttx/net_tstamp.h>
 #include <sys/socket.h>
 #include <nuttx/pthread.h>
-//#include <asm/socket.h>
 #include <sys/eventfd.h>
 #include <sys/time.h>
 
@@ -332,13 +329,13 @@ CO_ReturnError_t CO_CANmodule_addInterface(CO_CANmodule_t *CANmodule,
 
     /* enable software time stamp mode (hardware timestamps do not work properly
      * on all devices)*/
-    tmp = (SOF_TIMESTAMPING_SOFTWARE |
-           SOF_TIMESTAMPING_RX_SOFTWARE);
-    ret = setsockopt(interface->fd, SOL_SOCKET, SO_TIMESTAMP, &tmp, sizeof(tmp));
-    if (ret < 0) {
-        log_printf(LOG_DEBUG, DBG_ERRNO, "setsockopt(timestamping)");
-        return CO_ERROR_SYSCALL;
-    }
+//    tmp = (SOF_TIMESTAMPING_SOFTWARE |
+//           SOF_TIMESTAMPING_RX_SOFTWARE);
+//    ret = setsockopt(interface->fd, SOL_SOCKET, SO_TIMESTAMP, &tmp, sizeof(tmp));
+//    if (ret < 0) {
+//        log_printf(LOG_DEBUG, DBG_ERRNO, "setsockopt(timestamping)");
+//        return CO_ERROR_SYSCALL;
+//    }
 
     //todo - modify rx buffer size? first one needs root
     //ret = setsockopt(fd, SOL_SOCKET, SO_RCVBUFFORCE, (void *)&bytes, sLen);
@@ -831,6 +828,7 @@ static CO_ReturnError_t CO_CANread(
     struct msghdr msghdr;
     char ctrlmsg[CMSG_SPACE(sizeof(struct timeval)) + CMSG_SPACE(sizeof(dropped))];
     struct cmsghdr *cmsg;
+    struct canfd_frame msgFD;
 
     iov.iov_base = msg;
     iov.iov_len = sizeof(*msg);
